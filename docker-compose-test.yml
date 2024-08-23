@@ -1,0 +1,40 @@
+services: 
+  app_test:
+    build: .
+    command: bash start-test.sh
+    ports:
+      - "3000:3000"
+      - "1234:1234"
+    environment: 
+      - REDIS_URL=redis://cache_test:6379/0
+      - EXCHANGE_BASE_PATH=http://fakecurrency.com/
+      - EXCHANGE_API_KEY=api_key
+      - BUNDLE_PATH=/gems
+      - RAILS_ENV=test
+    volumes: 
+      - .:/one_bit_exchange
+      - gems_cache:/gems
+    networks:
+      - one-bit-exchange-test-net
+
+  box_test:
+    image: busybox
+    volumes:
+      - gems_cache:/gems
+    networks:
+      - one-bit-exchange-test-net
+
+  cache_test:
+    image: redis:7.4.0
+    ports:
+      - "6379:6379"
+    networks:
+      - one-bit-exchange-test-net
+
+networks:
+  one-bit-exchange-test-net:
+    name: one-bit-exchange-test-net
+    external: true
+
+volumes:
+  gems_cache:

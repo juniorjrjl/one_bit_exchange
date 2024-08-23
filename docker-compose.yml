@@ -1,0 +1,32 @@
+services: 
+  app:
+    build: .
+    command: bash start.sh
+    ports:
+      - "3000:3000"
+      - "1234:1234"
+    environment: 
+      - BUNDLE_PATH=/box
+      - REDIS_URL=redis://cache:6379/0
+      - EXCHANGE_BASE_PATH=https://api.currencyfreaks.com/v2.0/
+      - EXCHANGE_API_KEY=36ee23e027934776ae80e9710ae8ba9a
+    volumes: 
+      - .:/one_bit_exchange
+    networks:
+      - one-bit-exchange-net
+  box:
+    image: busybox
+    volumes:
+      - /box
+    networks:
+      - one-bit-exchange-net
+  cache:
+    image: redis:7.4.0
+    ports:
+      - "6379:6379"
+    networks:
+      - one-bit-exchange-net
+networks:
+  one-bit-exchange-net:
+    name: one-bit-exchange-net
+    external: true

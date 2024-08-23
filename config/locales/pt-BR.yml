@@ -1,0 +1,15 @@
+pt-BR:
+  exchange_request:
+    source:
+      blank: informe o id da moeda orgigem
+      unknow: O simbolo de origem da moeda %{symbol} é desconhecido
+    target:
+      blank: informe o id da moeda destino
+      unknow: O simbolo de destino da moeda %{symbol} é desconhecido
+    amount:
+      not_a_number: informe um valor
+      blank: informe o valor
+  errors:
+    generic: Aconteceu um erro inesperado
+    exchange: A requisição de conversão tem erros
+  

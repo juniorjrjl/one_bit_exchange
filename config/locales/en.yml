@@ -1,0 +1,14 @@
+en:
+  exchange_request:
+    source:
+      blank: enter with source currency id
+      unknow: a source symbol %{symbol} is unknow
+    target:
+      blank: enter with target currency id
+      unknow: a target symbol %{symbol} is unknow
+    amount:
+      not_a_number: enter with a valid amount
+      blank: enter with a amount
+  errors:
+    generic: Unexpected error
+    exchange: Exchange request has errors
