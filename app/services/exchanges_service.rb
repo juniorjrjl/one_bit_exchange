@@ -9,18 +9,16 @@ class ExchangesService
   end
 
   def convert(dto)
-    valid_symbol(dto.source, [[I18n.t('exchange_request.source.unknow', symbol: dto.source), 'source']])
-
-    valid_symbol(dto.target, [[I18n.t('exchange_request.target.unknow', symbol: dto.target), 'target']])
+    check_symbols(dto)
 
     rates = @rest_service.convert(dto.target, dto.source)
-    usd_amount = dto.amount
+    amount = dto.amount
     usd_base = rates['USD'].to_f
-    usd_amount = to_another_currency(rates[dto.source].to_f, dto.amount, usd_base) if dto.source != 'USD'
+    amount = to_another_currency(rates[dto.source].to_f, amount, usd_base) if dto.source != 'USD'
 
-    return usd_amount if dto.target == 'USD'
+    return amount if dto.target == 'USD'
 
-    to_another_currency(usd_base, usd_amount, rates[dto.target].to_f)
+    to_another_currency(usd_base, amount, rates[dto.target].to_f)
   end
 
   def available
@@ -48,11 +46,16 @@ class ExchangesService
     Marshal.load(serialized_symbols) if serialized_symbols
   end
 
-  def valid_symbol(symbol, error_info)
+  def check_symbols(dto)
     symbols = available
-    return nil if symbols.any? { |s| s.symbol == symbol }
+    fields = %i[source target]
+    fields.each do |field|
+      symbol = dto.send(field)
+      next if symbols.any? { |s| s.symbol == symbol }
 
-    message = I18n.t('errors.exchange')
-    raise ModelConstraintError.new(message, error_info)
+      message = I18n.t('errors.exchange')
+      error_info = [[I18n.t("exchange_request.#{field}.unknow", symbol:), field.to_s]]
+      raise ModelConstraintError.new(message, error_info)
+    end
   end
 end

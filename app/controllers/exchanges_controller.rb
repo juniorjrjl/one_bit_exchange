@@ -2,6 +2,7 @@
 
 class ExchangesController < ApplicationController
   def initialize(validations_service = ValidationsService.new, exchanges_service = ExchangesService.new)
+    super()
     @validations_service = validations_service
     @exchanges_service = exchanges_service
   end

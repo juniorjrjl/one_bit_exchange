@@ -35,7 +35,7 @@ RSpec.describe ExchangesService, type: :service do
 
       it 'recover available' do
         actual = service.available
-        expect_field_by_field_list(actual, symbols, %i[symbol description])
+        expect_field_by_field_list(actual, symbols.sort_by(&:description), %i[symbol description])
         expect(redis).to have_received(:get)
         expect(redis).to have_received(:set)
       end
@@ -53,8 +53,8 @@ RSpec.describe ExchangesService, type: :service do
 
     context 'has a unknow symbol' do
       [
-        { valid_field: :target, invalid_field: :source, interactions: 1 },
-        { valid_field: :source, invalid_field: :target, interactions: 2 }
+        { valid_field: :target, invalid_field: :source },
+        { valid_field: :source, invalid_field: :target }
       ].each do |params|
         it 'use dto with invalid symbol' do
           valid_field = params[:valid_field]
@@ -63,7 +63,7 @@ RSpec.describe ExchangesService, type: :service do
           expect { service.convert(dto) }.to raise_error(ModelConstraintError) { |er|
                                                expect(er.errors[0][1]).to eq(invalid_field.to_s)
                                              }
-          expect(redis).to have_received(:get).exactly(params[:interactions]).times
+          expect(redis).to have_received(:get).exactly(1).times
         end
       end
     end
