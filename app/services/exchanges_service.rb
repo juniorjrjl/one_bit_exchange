@@ -1,49 +1,52 @@
 # frozen_string_literal: true
 
-require 'json'
-
 class ExchangesService
-  def initialize(rest_service = RestService.new, redis = $redis)
+  def initialize(rest_service = RestService.new, cache_service = CacheService.new)
     @rest_service = rest_service
-    @redis = redis
+    @cache_service = cache_service
   end
 
   def convert(dto)
     check_symbols(dto)
-
-    rates = @rest_service.convert(dto.target, dto.source)
-    amount = dto.amount
-    usd_base = rates['USD'].to_f
-    amount = to_another_currency(rates[dto.source].to_f, amount, usd_base) if dto.source != 'USD'
-
-    return amount if dto.target == 'USD'
-
-    to_another_currency(usd_base, amount, rates[dto.target].to_f)
+    rates = retrieve_base_values(dto.target, dto.source)
+    convert_to_target(dto, rates)
   end
 
   def available
-    symbols = recover_symbols
-    return symbols if symbols
+    symbols = @cache_service.recover('symbols')
+    return symbols.map { |symbol| AvailableDto.from_h(symbol) } if symbols
 
     recovered = @rest_service.currencies.map { |k, v| AvailableDto.new(k, v) }
-    store_symbols(recovered)
+    @cache_service.store('symbols', recovered.map(&:to_h))
     recovered.sort_by(&:description)
   end
 
   private
 
+  def retrieve_base_values(target, source)
+    @rest_service.convert(target, source)
+  end
+
+  def convert_to_target(dto, rates)
+    dollar_amount = to_dollar(dto.amount, dto.source, rates[dto.source].to_f, rates['USD'].to_f)
+
+    to_target(dto.target, dollar_amount, rates['USD'].to_f, rates[dto.target].to_f)
+  end
+
+  def to_dollar(amount, source, source_base, dollar_base)
+    return amount if source == 'USD'
+
+    to_another_currency(source_base, amount, dollar_base)
+  end
+
+  def to_target(target, amount, dollar_base, target_base)
+    return amount if target == 'USD'
+
+    to_another_currency(dollar_base, amount, target_base)
+  end
+
   def to_another_currency(source_base, source_valeu, target_base)
     (source_valeu * target_base) / source_base
-  end
-
-  def store_symbols(symbols)
-    serialized_symbols = Marshal.dump(symbols)
-    @redis.set('symbols', serialized_symbols, ex: 60)
-  end
-
-  def recover_symbols
-    serialized_symbols = @redis.get('symbols')
-    Marshal.load(serialized_symbols) if serialized_symbols
   end
 
   def check_symbols(dto)

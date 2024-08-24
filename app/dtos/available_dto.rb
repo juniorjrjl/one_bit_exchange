@@ -7,4 +7,12 @@ class AvailableDto
     @symbol = symbol
     @description = description
   end
+
+  def to_h
+    { symbol: @symbol, description: @description }
+  end
+
+  def self.from_h(hash)
+    new(hash[:symbol], hash[:description])
+  end
 end

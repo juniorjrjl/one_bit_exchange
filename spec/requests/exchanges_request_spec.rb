@@ -17,7 +17,7 @@ RSpec.describe 'Exchanges', type: :request do
       end
 
       after do
-        $redis.del('symbols')
+        Redis.new(url: ENV['REDIS_URL']).del('symbols')
       end
 
       it 'then http status is ok' do
@@ -54,7 +54,7 @@ RSpec.describe 'Exchanges', type: :request do
       end
 
       after do
-        $redis.del('symbols')
+        Redis.new(url: ENV['REDIS_URL']).del('symbols')
       end
 
       it 'then http status is ok' do
@@ -83,7 +83,7 @@ RSpec.describe 'Exchanges', type: :request do
     end
 
     after do
-      $redis.del('symbols')
+      Redis.new(url: ENV['REDIS_URL']).del('symbols')
     end
 
     context 'invalid params' do

@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe ExchangesService, type: :service do
   let(:rest_service) { double(RestService) }
-  let(:redis) { double(Redis) }
+  let(:redis) { double(CacheService) }
   let(:service) { described_class.new(rest_service, redis) }
 
   context 'get available symbols' do
@@ -12,8 +12,8 @@ RSpec.describe ExchangesService, type: :service do
 
     context 'get from redis cache' do
       before do
-        cache_json = Marshal.dump(symbols)
-        expect(redis).to receive(:get).with('symbols').and_return(cache_json)
+        cache_json = symbols.map(&:to_h)
+        expect(redis).to receive(:recover).with('symbols').and_return(cache_json)
         allow(rest_service).to receive(:currencies)
       end
 
@@ -29,15 +29,15 @@ RSpec.describe ExchangesService, type: :service do
         allow(rest_service).to receive(:currencies).and_return(symbols.each_with_object({}) do |d, m|
                                                                  m[d.symbol] = d.description
                                                                end)
-        allow(redis).to receive(:get).with('symbols').and_return(nil)
-        allow(redis).to receive(:set).with('symbols', anything, ex: 60)
+        allow(redis).to receive(:recover).with('symbols').and_return(nil)
+        allow(redis).to receive(:store).with('symbols', anything)
       end
 
       it 'recover available' do
         actual = service.available
         expect_field_by_field_list(actual, symbols.sort_by(&:description), %i[symbol description])
-        expect(redis).to have_received(:get)
-        expect(redis).to have_received(:set)
+        expect(redis).to have_received(:recover)
+        expect(redis).to have_received(:store)
       end
     end
   end
@@ -48,7 +48,7 @@ RSpec.describe ExchangesService, type: :service do
     end
 
     before do
-      allow(redis).to receive(:get).with('symbols').and_return(Marshal.dump(symbols))
+      allow(redis).to receive(:recover).with('symbols').and_return(symbols.map(&:to_h))
     end
 
     context 'has a unknow symbol' do
@@ -63,7 +63,7 @@ RSpec.describe ExchangesService, type: :service do
           expect { service.convert(dto) }.to raise_error(ModelConstraintError) { |er|
                                                expect(er.errors[0][1]).to eq(invalid_field.to_s)
                                              }
-          expect(redis).to have_received(:get).exactly(1).times
+          expect(redis).to have_received(:recover).exactly(1).times
         end
       end
     end
