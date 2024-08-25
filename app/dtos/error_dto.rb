@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# DTO to representate api errors
 class ErrorDto
   attr_reader :status, :message, :field_errors
 

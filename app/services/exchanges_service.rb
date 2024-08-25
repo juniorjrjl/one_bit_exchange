@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Service to return available currencies and make exchange between currencies
 class ExchangesService
   def initialize(rest_service = RestService.new, cache_service = CacheService.new)
     @rest_service = rest_service

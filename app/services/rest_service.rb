@@ -3,6 +3,7 @@
 require 'net/http'
 require 'json'
 
+# Service to call endpoints from CurrencyFreaks api
 class RestService
   def initialize(base_path = ENV['EXCHANGE_BASE_PATH'], api_key = ENV['EXCHANGE_API_KEY'])
     @base_path = base_path

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Class with information about fields with error in request
 class FieldErrorDto
   attr_reader :field, :error_message
 

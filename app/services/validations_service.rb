@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Service to check class who use ActiveModel and check if instance have some constraint violation
 class ValidationsService
   def validate(model, error_message)
     model.valid?

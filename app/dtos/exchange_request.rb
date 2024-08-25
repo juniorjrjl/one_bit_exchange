@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Class to receive exchnage request and validation informations
 class ExchangeRequest
   include ActiveModel::Model
 

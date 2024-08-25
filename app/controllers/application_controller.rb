@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Main controller with exception handler
 class ApplicationController < ActionController::API
   rescue_from Exception do |e|
     logger.error "==== Exception: #{e.backtrace.join("\n")}"

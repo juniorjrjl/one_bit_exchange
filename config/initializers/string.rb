@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# class used to inject methods in String class
 class String
   def to_snake_case
     gsub(/::/, '/')

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Controller to receive requests about exchange
 class ExchangesController < ApplicationController
   def initialize(validations_service = ValidationsService.new, exchanges_service = ExchangesService.new)
     super()

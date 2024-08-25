@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# DTO with exchange information
 class ExchangeDto
   attr_reader :source, :target, :amount
 

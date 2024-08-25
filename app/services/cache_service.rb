@@ -2,6 +2,7 @@
 
 require 'json'
 
+# Service used to manager redis cache
 class CacheService
   def initialize(url = ENV['REDIS_URL'])
     @redis = Redis.new(url:)

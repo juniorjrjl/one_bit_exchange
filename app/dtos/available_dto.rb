@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# DTO for return availables currencies
 class AvailableDto
   attr_reader :symbol, :description
 
