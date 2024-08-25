@@ -26,9 +26,8 @@ RSpec.describe ExchangesService, type: :service do
 
     context 'get from api' do
       before do
-        allow(rest_service).to receive(:currencies).and_return(symbols.each_with_object({}) do |d, m|
-                                                                 m[d.symbol] = d.description
-                                                               end)
+        availables = symbols.each_with_object({}) { |d, m| m[d.symbol] = d.description }
+        allow(rest_service).to receive(:currencies).and_return(availables)
         allow(redis).to receive(:recover).with('symbols').and_return(nil)
         allow(redis).to receive(:store).with('symbols', anything)
       end
